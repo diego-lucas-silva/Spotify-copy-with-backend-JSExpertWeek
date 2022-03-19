@@ -15,7 +15,7 @@ async function routes(request, response) {
 
   if (method === 'GET' && url === '/') {
     response.writeHead(302, {
-      Location: config.location.home
+      Location: location.home
     })
 
     return response.end()
@@ -34,11 +34,6 @@ async function routes(request, response) {
 
   if (method === 'GET' && url === '/controller') {
     const { stream, type } = await controller.getFileStream(controllerHTML)
-
-    // padrão do response é text/html
-    /* response.writeHead(200, {
-      'Content-Type': 'text/html'
-    }) */
 
     return stream.pipe(response)
   }
@@ -65,11 +60,13 @@ async function routes(request, response) {
 function handleError(error, response) {
   if (error.message.includes('ENOENT')) {
     logger.warn(`asset not found ${error.stack}`)
-    response.writeHead(500)
+    response.writeHead(404)
     return response.end()
   }
 
-  logger.error(`caught erro on API ${error.stack}`)
+  logger.error(`caught error on API ${error.stack}`)
+  response.writeHead(500)
+  return response.end()
 }
 
 export function handler(request, response) {
